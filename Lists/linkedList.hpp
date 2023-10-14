@@ -1,5 +1,5 @@
 #ifndef LINKEDLIST_H
-#define LINKKEDLIST_H
+#define LINKEDLIST_H
 
 template<typename TypeElem>
 struct Node {
@@ -53,6 +53,7 @@ class LinkedList{
             tail->data = item;
             tail->next = NULL;
             length++;
+            return length;
         };
         
         TypeElem erase(){
@@ -113,6 +114,5 @@ class LinkedList{
             return curr->next->data;
         };
 };
-
 
 #endif
