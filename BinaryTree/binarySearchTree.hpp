@@ -25,171 +25,246 @@ struct Node {
 
 template <typename TypeKey, typename TypeValue>
 class binarySearchTree {
-    private:
-        unsigned int n;
-        Node<TypeKey, TypeValue>* root;
-    public:
-        binarySearchTree();
-        ~binarySearchTree();
-        bool find(TypeKey key, TypeValue &value);
-        void clear();
-        bool insert(TypeKey key, TypeValue value);
-        bool remove(TypeKey key);
-        unsigned int size();
-        vector<tuple<TypeKey, TypeValue>> inOrder();
-        vector<tuple<TypeKey, TypeValue>> preOrder();
-        vector<tuple<TypeKey, TypeValue>> postOrder();
-        vector<tuple<TypeKey, TypeValue>> levelOrder();
-};
+private:
+    unsigned int n;
+    Node<TypeKey, TypeValue>* root;
+public:    
+    // Constructor
+    binarySearchTree() {
+        binarySearchTree::n = 0;
+        binarySearchTree::root = NULL;
+    };
+    // Destructor
+    ~binarySearchTree() {
+        // delete nodes using post-order traversal
+        clear();
+    };
+    // Returns the number of node in the tree
+    unsigned int size(){
+        return binarySearchTree::n;
+    };
+    /* BEGIN CLEAR TREE:
+        * RESTART THE TREE TO EMPTY
+    */
+    void clearHelp(Node<TypeKey,TypeValue>* root){
+        if (root == NULL) return;
+        clearHelp(root->left);
+        clearHelp(root->right);
+        delete(root);
+    };
 
-template<typename TypeKey, typename TypeValue>
-binarySearchTree<TypeKey, TypeValue>::binarySearchTree() {
-    binarySearchTree::n = 0;
-    binarySearchTree::root = NULL;
-}
-
-template<typename TypeKey, typename TypeValue>
-binarySearchTree<TypeKey, TypeValue>::~binarySearchTree() {
-    // delete nodes using post-order traversal
-    clear();
-}
-
-template<typename TypeKey, typename TypeValue>
-void clearHelp(Node<TypeKey,TypeValue>* root){
-    if (root == NULL) return;
-    clearHelp(root->left);
-    clearHelp(root->right);
-    delete(root);
-};
-
-template<typename TypeKey, typename TypeValue>
-void binarySearchTree<TypeKey, TypeValue>::clear() {
-    if (root == NULL) return;
-    clearHelp<TypeKey, TypeValue>(root);
-};
-
-template<typename TypeKey, typename TypeValue>
-bool insertHelp(Node<TypeKey, TypeValue>* root, TypeKey key, TypeValue value){
-    if (value == root->key) return false;
-    else if (value < root->key) {
-        if (root->left == NULL) {
-            root->left = new Node<TypeKey, TypeValue>(key, value);
+    void clear() {
+        if (root == NULL) return;
+        clearHelp(root);
+    };
+    /* END CLEAR TREE */
+    /* BEGIN INSERT NODE */
+    bool insertHelp(Node<TypeKey, TypeValue>* root, TypeKey key, TypeValue value){
+        if (key == root->key) return false;
+        else if (key <= root->key) {
+            if (root->left == NULL) {
+                root->left = new Node<TypeKey, TypeValue>(key, value);
+                return true;
+            }
+            else return insertHelp(root->left, key, value);
+        } else {
+            if (root->right == NULL){
+                root->right = new Node<TypeKey, TypeValue>(key, value);
+                return true;    
+            }
+            else return insertHelp(root->right, key, value);
+        }
+    };
+    bool insert(TypeKey key, TypeValue value){
+        // Case when BST is empty
+        if (root == NULL){
+            root = new Node<TypeKey, TypeValue>(key, value);
             return true;
         }
-        else return insertHelp(root->left, key, value);
-    } else {
-        if (root->right == NULL){
-            root->right = new Node<TypeKey, TypeValue>(key, value);
-            return true;    
+        else
+            return insertHelp(root, key, value);
+    };
+    /* END INSERT NODE */
+
+    /* BEGIN FIND NODE
+        * FIND THE NODE WITH THE KEY
+        * RETURN A POINTER TO THE NODE, NULL IF NOT FOUND
+     */
+    Node<TypeKey, TypeValue>* findHelp(Node<TypeKey, TypeValue>* root, TypeKey key){
+        if (root == NULL) return NULL;
+        else if (root->key == key) {
+            return root;
+        } 
+        else if (key < root->key)
+            return findHelp(root->left, key);
+        else 
+            return findHelp(root->right, key);
+    };
+
+    Node<TypeKey, TypeValue>* find(TypeKey key){
+        return findHelp(root, key);
+    };
+    /* END FIND NODE */
+
+    /* BEGIN TRAVERSALS */
+    // DFS Traversals
+    // In-order traversal
+    void inOrderHelp(Node<TypeKey, TypeValue>* root, vector<tuple<TypeKey, TypeValue>> &traverse){
+        if (root == NULL) return;
+        inOrderHelp(root->left, traverse);
+        tuple<TypeKey, TypeValue> data(root->key, root->value);
+        traverse.push_back(data);
+        inOrderHelp(root->right, traverse);
+    };
+    vector<tuple<TypeKey, TypeValue>> inOrder(){
+        vector<tuple<TypeKey, TypeValue>> traverse;
+        traverse.reserve(n);
+        inOrderHelp(root, traverse);
+        return traverse;
+    };
+
+    //Post-order traversal 
+    void postOrderHelp(Node<TypeKey, TypeValue>* root, vector<tuple<TypeKey, TypeValue>> &traverse){
+        if (root == NULL) return;
+        postOrderHelp(root->left, traverse);
+        postOrderHelp(root->right, traverse);
+        tuple<TypeKey, TypeValue> data(root->key, root->value);  
+        traverse.push_back(data);  
+    };
+    vector<tuple<TypeKey, TypeValue>> postOrder(){
+        vector<tuple<TypeKey, TypeValue>> traverse;
+        traverse.reserve(n);
+        postOrderHelp(root, traverse);
+        return traverse;
+    };
+    // Pre-order traversal
+    void preOrderHelp(Node<TypeKey, TypeValue>* root, vector<tuple<TypeKey, TypeValue>> &traverse){
+        if (root == NULL) return;
+        tuple<TypeKey, TypeValue> data(root->key, root->value);
+        traverse.push_back(data);
+        preOrderHelp(root->left, traverse);
+        preOrderHelp(root->right, traverse);
+    };
+    vector<tuple<TypeKey, TypeValue>> preOrder(){
+        vector<tuple<TypeKey, TypeValue>> traverse;
+        traverse.reserve(n);
+        preOrderHelp(root, traverse);
+        return traverse;
+    };
+
+    // Breadthfirst traversal (BFS)
+    vector<tuple<TypeKey, TypeValue>> breadthFirst(){
+        // Queue to perfor level-wise traverse
+        queue<Node<TypeKey,TypeValue>*> Q;
+        vector<tuple<TypeKey, TypeValue>> traverse; // vector to return the traverse
+        // reserve space to n pairs key and value
+        traverse.reserve(n);
+        Q.push(root);
+        Node<TypeKey, TypeValue> *aux;
+        while(!Q.empty()){
+            aux = Q.front();
+            traverse.push_back(tuple<TypeKey, TypeValue>(aux->key, aux->value));
+            if (aux->left != NULL)
+                Q.push(aux->left);
+            if (aux->right != NULL)
+                Q.push(aux->right);
+            Q.pop();
         }
-        else return insertHelp(root->right, key, value);
-    }
-};
+        return traverse;
+    };
+    /* END TRAVERSALS */
 
-template<typename TypeKey, typename TypeValue>
-bool binarySearchTree<TypeKey, TypeValue>::insert(TypeKey key, TypeValue value){
-    // Case when BST is empty
-    if (root == NULL){
-        root = new Node<TypeKey, TypeValue>(key, value);
-        return true;
-    }
-    else
-        return insertHelp(root, key, value);
-};
+    /* BEGIN REMOVE NODE */
+    Node<TypeKey, TypeValue>* findSuccessor(Node<TypeKey, TypeValue>* node) {
+        if (node -> right == NULL) return NULL;
+        else {
+            Node<TypeKey,TypeValue>* curr = node->right;
+            while (curr -> left != NULL)
+                curr = curr -> left;
+            return curr;
+        }   
+    };
+    
+    Node<TypeKey, TypeValue>* findPredecessor(Node<TypeKey, TypeValue>* node) {
+        if (node -> left == NULL) return NULL;
+        else {
+            Node<TypeKey,TypeValue>* curr = node->left;
+            while (curr -> right != NULL)
+                curr = curr -> right;
+            return curr;
+        }   
+    };
 
-template<typename TypeKey, typename TypeValue>
-unsigned int binarySearchTree<TypeKey, TypeValue>::size(){
-    return binarySearchTree::n;
-};
+    Node<TypeKey, TypeValue>* findParent(Node<TypeKey, TypeValue>* node, TypeKey key){
+        if (node == NULL) return NULL;
+        else if (node->left != NULL and node->left->key == key) return node;
+        else if (node->right != NULL and node->right->key == key) return node;
+        else if (key < node->key)
+            return findParent(node->left, key);
+        else
+            return findParent(node->right, key);
+    };
+
+    bool remove(TypeKey key){
+        if (root == NULL) return false;
+        Node<TypeKey, TypeValue>* parent = findParent(key);
+        Node<TypeKey, TypeValue>* node;
+        if (parent == NULL) 
+            node = root;
+        else    
+            node = parent->left == key ? parent->left : parent->right;
+        // case 1: node has no children
+        if (node -> left == NULL and node->right == NULL){
+            if (parent != NULL and parent->left == node) 
+                parent->left = NULL;
+            else if (parent != NULL and parent->right == node) 
+                parent->right = NULL;
+            else 
+                root = NULL;
+            delete node;
+            n--;
+            return true;
+        }
+        // case 2: node has one child
+        else if (node->left == NULL xor node->right == NULL){
+            Node<TypeKey, TypeValue>* child = node->left != NULL ? node->left : node->right;
+            if (parent != NULL and parent->left == node) 
+                parent->left = child;
+            else if (parent != NULL and parent->right == node)
+                parent->right = child;
+            else
+                root = child;
+            delete node;
+            n--;
+            return true;
+        }
+        // case 3: node has two children
+        else {
+            Node<TypeKey, TypeValue>* successor = findSuccessor(node);
+            Node<TypeKey, TypeValue>* successorParent = findParent(successor);
+            Node<TypeKey, TypeValue> temp = &node;
+            // exchange the values of the node and the successor
+            node->key = successor->key;
+            node->value = successor->value;
+            successor->key = temp->key;
+            successor->value = temp->value;
+            // remove the successor
+            // note: the child of successor is at most one and always on the right
+            if (successorParent->left == successor)
+                successorParent->left = successor->right;
+            else
+                successorParent->right = successor->right;
+            delete successor;
+            n--;
+            return true;
+        }
+
+    };
+    /* END REMOVE NODE */
 
 
-template<typename TypeKey, typename TypeValue>
-bool findHelp(Node<TypeKey, TypeValue>* root, TypeKey key, TypeValue &value){
-    if (root == NULL) return false;
-    else if (root->key == key) {
-        value = root->value;
-        return true;
-    } 
-    else if (key < root->key)
-        return findHelp(root->left, key, value);
-    else 
-        return findHelp(root->right, key, value);
-};
 
-template<typename TypeKey, typename TypeValue>
-bool binarySearchTree<TypeKey, TypeValue>::find(TypeKey key, TypeValue &value){
-    return findHelp<TypeKey, TypeValue>(root, key, value);
-};
 
-template<typename TypeKey, typename TypeValue>
-void inOrderHelp(Node<TypeKey, TypeValue>* root, vector<tuple<TypeKey, TypeValue>> &traverse){
-    if (root == NULL) return;
-    inOrderHelp(root->left, traverse);
-    tuple<TypeKey, TypeValue> data(root->key, root->value);
-    traverse.push_back(data);
-    inOrderHelp(root->right, traverse);
-};
-
-template<typename TypeKey, typename TypeValue>
-vector<tuple<TypeKey, TypeValue>> binarySearchTree<TypeKey, TypeValue>::inOrder(){
-    vector<tuple<TypeKey, TypeValue>> traverse;
-    traverse.reserve(n);
-    inOrderHelp(root, traverse);
-    return traverse;
-};
-
-template<typename TypeKey, typename TypeValue>
-void postOrderHelp(Node<TypeKey, TypeValue>* root, vector<tuple<TypeKey, TypeValue>> &traverse){
-    if (root == NULL) return;
-    postOrderHelp(root->left, traverse);
-    postOrderHelp(root->right, traverse);
-    tuple<TypeKey, TypeValue> data(root->key, root->value);  traverse.push_back(data);  
-};
-
-template<typename TypeKey, typename TypeValue>
-vector<tuple<TypeKey, TypeValue>> binarySearchTree<TypeKey, TypeValue>::postOrder(){
-    vector<tuple<TypeKey, TypeValue>> traverse;
-    traverse.reserve(n);
-    postOrderHelp(root, traverse);
-    return traverse;
-};
-
-template<typename TypeKey, typename TypeValue>
-void preOrderHelp(Node<TypeKey, TypeValue>* root, vector<tuple<TypeKey, TypeValue>> &traverse){
-    if (root == NULL) return;
-    tuple<TypeKey, TypeValue> data(root->key, root->value);
-    traverse.push_back(data);
-    preOrderHelp(root->left, traverse);
-    preOrderHelp(root->right, traverse);
-};
-
-template<typename TypeKey, typename TypeValue>
-vector<tuple<TypeKey, TypeValue>> binarySearchTree<TypeKey, TypeValue>::preOrder(){
-    vector<tuple<TypeKey, TypeValue>> traverse;
-    traverse.reserve(n);
-    preOrderHelp(root, traverse);
-    return traverse;
-};
-
-template<typename TypeKey, typename TypeValue>
-vector<tuple<TypeKey, TypeValue>> binarySearchTree<TypeKey, TypeValue>::levelOrder(){
-    // Queue to perfor level-wise traverse
-    queue<Node<TypeKey,TypeValue>*> Q;
-    vector<tuple<TypeKey, TypeValue>> traverse; // vector to return the traverse
-    // reserve space to n pairs key and value
-    traverse.reserve(n);
-    Q.push(root);
-    Node<TypeKey, TypeValue> *aux;
-    while(!Q.empty()){
-        aux = Q.front();
-        traverse.push_back(tuple<TypeKey, TypeValue>(aux->key, aux->value));
-        if (aux->left != NULL)
-            Q.push(aux->left);
-        if (aux->right != NULL)
-            Q.push(aux->right);
-        Q.pop();
-    }
-    return traverse;
 };
 
 #endif
