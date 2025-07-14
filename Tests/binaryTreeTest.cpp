@@ -70,7 +70,25 @@ int main(int argc, char* argv[]) {
     if (target != NULL) {
         cout << "   * Node value: " << target->value << endl;
     }
-    
 
+    cout << "-------------Testing remove method-------------" << endl;
+    cout << "Removing node with key 5: " << (bst.remove(5) ? "Removed" : "Not Found") << endl;
+    traverse = bst.breadthFirst();
+    cout << "Breadth-first traversal:" << endl;
+    printTraverse(traverse);
+    traverse.clear();
+    
+    cout << "Removing node with key 2: " << (bst.remove(2) ? "Removed" : "Not Found") << endl;
+    traverse = bst.breadthFirst();
+    cout << "Breadth-first traversal:" << endl;
+    printTraverse(traverse);
+    traverse.clear();
+    
+    cout << "Removing node with key 3: " << (bst.remove(3) ? "Removed" : "Not Found") << endl;
+    traverse = bst.breadthFirst();
+    cout << "Breadth-first traversal:" << endl;
+    printTraverse(traverse);
+    traverse.clear();
+    
     return 0;
 }
