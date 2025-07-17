@@ -42,5 +42,45 @@ int main(int argc, char* argv[]){
     cout << "Post-order traversal:" << endl;
     printTraverse(traverse);
     traverse.clear();
+
+    // Test find
+    cout << "-------------Testing find method-------------" << endl;
+    Node<int, int>* target = avl.find(5);
+    cout <<"Find node with key 5: " << (target != NULL ? "Found" : "Not Found") << endl;
+    if (target != NULL) {
+        cout << "   * Node value: " << target->value << endl;
+    }
+    target = avl.find(3);
+    cout <<"Find node with key 3: " << (target != NULL ? "Found" : "Not Found") << endl;
+    if (target != NULL) {
+        cout << "   * Node value: " << target->value << endl;
+    }
+    target = avl.find(6);
+    cout <<"Find node with key 6: " << (target != NULL ? "Found" : "Not Found") << endl;
+    if (target != NULL) {
+        cout << "   * Node value: " << target->value << endl;
+    }
+    target = avl.find(13);
+    cout <<"Find node with key 13: " << (target != NULL ? "Found" : "Not Found") << endl;
+    if (target != NULL) {
+        cout << "   * Node value: " << target->value << endl;
+    }
+
+      cout << "-------------Testing remove method-------------" << endl;
+    cout << "Removing node with key 5: " << (avl.remove(5) ? "Removed" : "Not Found") << endl;
+    traverse = avl.breadthFirst();
+    cout << "Breadth-first traversal:" << endl;
+    printTraverse(traverse);
+    traverse.clear();
+
+    cout << "Removing node with key 12: " << (avl.remove(12) ? "Removed" : "Not Found") << endl;
+    traverse = avl.breadthFirst();
+    cout << "Breadth-first traversal:" << endl;
+    printTraverse(traverse);
+    traverse.clear();
+
+    cout << "-------------Testing [] operator  -------------\n";
+    cout <<" Value of key [10]: " << avl[10] << endl;
+
     return 0;
 }

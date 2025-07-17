@@ -40,7 +40,6 @@ class avlTree: public binarySearchTree<TypeKey, TypeValue> {
         if (root == nullptr) return;
         clearHelp(root->left);
         clearHelp(root->right);
-        cout << "Deleting node with key: " << root->key << endl;
         delete((AvlNode*)root);
     };
 
@@ -86,6 +85,7 @@ class avlTree: public binarySearchTree<TypeKey, TypeValue> {
     };
     /*  END ROTATIONS   */
 
+    /*  BEGIN INSERT    */
     BstNode* insertHelp(BstNode* node, TypeKey key, TypeValue value){
         if (node == nullptr)
             return new AvlNode(key, value);
@@ -146,10 +146,83 @@ class avlTree: public binarySearchTree<TypeKey, TypeValue> {
             return true;
         }
     };
-    void remove(TypeKey key) {
-        // Implement AVL tree removal logic here
-        // This will involve balancing the tree after removal
+    /*  END INSERT  */
+    
+    /*  BEGIN REMOVE    */
+
+    BstNode* minNode(BstNode* node) {
+        if (node == nullptr) return nullptr;
+        while(node -> left != nullptr)
+            node = node -> left;
+        return node;
     };
+
+    BstNode* removeHelp(BstNode* node, TypeKey key, bool &found){
+        if (node == nullptr) {
+            found = false;
+            return nullptr;
+        }
+
+        if (key < node->key) {
+            node->left = avlTree::removeHelp(node->left, key, found);
+            ((AvlNode*)node)->balanceFactor++;
+        } 
+        else if (key > node->key) {
+            node->right = avlTree::removeHelp(node->right, key, found);
+            ((AvlNode*)node)->balanceFactor--;
+        } 
+        else {
+            // Node to be deleted found
+            if (node->left == nullptr || node->right == nullptr) {
+                BstNode* temp = node->left ? node->left : node->right;
+                if (temp == nullptr) {
+                    delete node;
+                    return nullptr;
+                } else {
+                    *node = *temp; // Copy the contents of the child
+                    delete temp;
+                }
+            } else {
+                BstNode* temp = minNode(node->right);
+                node->key = temp->key;
+                node->value = temp->value;
+                node->right = avlTree::removeHelp(node->right, temp->key, found);
+            }
+        }
+
+        // Update balance factor and balance the tree
+        if (((AvlNode*)node)->balanceFactor < -1) {
+            if (((AvlNode*)node->left)->balanceFactor <= 0)
+                return rightRotation(node); // Right rotation
+            else
+                return leftRightRotation(node); // Left-Right rotation
+        } 
+        else if (((AvlNode*)node)->balanceFactor > 1) {
+            if (((AvlNode*)node->right)->balanceFactor >= 0)
+                return leftRotation(node); // Left rotation
+            else
+                return rightLeftRotation(node); // Right-Left rotation
+        }
+
+        return node;
+    }
+
+    bool remove(TypeKey key){
+        if (avlTree::root == nullptr) 
+            return false;
+        
+        bool found = true;
+        avlTree::root = avlTree::removeHelp(avlTree::root, key, found);
+        
+        if(!found) 
+            return false;
+        else {
+            bst::root = avlTree::root;
+            bst::n--;
+            return true;
+        }
+    }
+    /*  END REMOVE  */
 };
 
 #endif

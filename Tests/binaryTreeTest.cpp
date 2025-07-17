@@ -71,6 +71,7 @@ int main(int argc, char* argv[]) {
         cout << "   * Node value: " << target->value << endl;
     }
 
+    // Test remove
     cout << "-------------Testing remove method-------------" << endl;
     cout << "Removing node with key 5: " << (bst.remove(5) ? "Removed" : "Not Found") << endl;
     traverse = bst.breadthFirst();
@@ -89,6 +90,10 @@ int main(int argc, char* argv[]) {
     cout << "Breadth-first traversal:" << endl;
     printTraverse(traverse);
     traverse.clear();
+
+    cout << "-------------Testing [] operator  -------------\n";
+    cout <<" Value of key [13]: " << bst[13] << endl;
+    
     
     return 0;
 }

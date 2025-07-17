@@ -5,7 +5,7 @@
 #include <tuple>
 #include <vector>
 #include <queue>
-
+#include <sstream>
 using namespace std;
 
 template<typename TypeKey, typename TypeValue>
@@ -26,9 +26,10 @@ class Node {
 
 template <typename TypeKey, typename TypeValue>
 class binarySearchTree {
+using BstNode = Node<TypeKey, TypeValue>;
 protected:
     unsigned int n;
-    Node<TypeKey, TypeValue>* root;
+    BstNode* root;
 public:    
     // Constructor
     binarySearchTree() {
@@ -44,6 +45,18 @@ public:
     unsigned int size(){
         return binarySearchTree::n;
     };
+
+    TypeValue operator[](TypeKey key){
+        BstNode* node = find(key);
+        if (node == nullptr){
+            stringstream ss; 
+            ss <<  "Key " << key << " not found";
+            throw std::runtime_error(ss.str());
+        }
+        else
+            return node->value;
+    };
+
     /* BEGIN CLEAR TREE:
         * RESTART THE TREE TO EMPTY
     */
@@ -60,17 +73,17 @@ public:
     };
     /* END CLEAR TREE */
     /* BEGIN INSERT NODE */
-    bool insertHelp(Node<TypeKey, TypeValue>* root, TypeKey key, TypeValue value){
+    bool insertHelp(BstNode* root, TypeKey key, TypeValue value){
         if (key == root->key) return false;
         else if (key <= root->key) {
             if (root->left == nullptr) {
-                root->left = new Node<TypeKey, TypeValue>(key, value);
+                root->left = new BstNode(key, value);
                 return true;
             }
             else return insertHelp(root->left, key, value);
         } else {
             if (root->right == nullptr){
-                root->right = new Node<TypeKey, TypeValue>(key, value);
+                root->right = new BstNode(key, value);
                 return true;    
             }
             else return insertHelp(root->right, key, value);
@@ -79,7 +92,7 @@ public:
     bool insert(TypeKey key, TypeValue value){
         // Case when BST is empty
         if (root == nullptr){
-            root = new Node<TypeKey, TypeValue>(key, value);
+            root = new BstNode(key, value);
             return true;
         }
         else {
@@ -95,7 +108,8 @@ public:
         * FIND THE NODE WITH THE KEY
         * RETURN A POINTER TO THE NODE, nullptr IF NOT FOUND
      */
-    Node<TypeKey, TypeValue>* findHelp(Node<TypeKey, TypeValue>* root, TypeKey key){
+
+    BstNode* findHelp(BstNode* root, TypeKey key){
         if (root == nullptr) return nullptr;
         else if (root->key == key) {
             return root;
@@ -106,15 +120,26 @@ public:
             return findHelp(root->right, key);
     };
 
-    Node<TypeKey, TypeValue>* find(TypeKey key){
-        return findHelp(root, key);
+    BstNode* find(TypeKey key, bool recursive=false){
+        if (recursive)
+            return findHelp(root, key);
+        else {
+            BstNode* curr = root;
+            while (curr != nullptr && curr->key != key) {
+                if (key < curr->key)
+                    curr = curr->left;
+                else
+                    curr = curr->right;
+            }
+            return curr;
+        }
     };
     /* END FIND NODE */
 
     /* BEGIN TRAVERSALS */
     // DFS Traversals
     // In-order traversal
-    void inOrderHelp(Node<TypeKey, TypeValue>* root, vector<tuple<TypeKey, TypeValue>> &traverse){
+    void inOrderHelp(BstNode* root, vector<tuple<TypeKey, TypeValue>> &traverse){
         if (root == nullptr) return;
         inOrderHelp(root->left, traverse);
         tuple<TypeKey, TypeValue> data(root->key, root->value);
@@ -129,7 +154,7 @@ public:
     };
 
     //Post-order traversal 
-    void postOrderHelp(Node<TypeKey, TypeValue>* root, vector<tuple<TypeKey, TypeValue>> &traverse){
+    void postOrderHelp(BstNode* root, vector<tuple<TypeKey, TypeValue>> &traverse){
         if (root == nullptr) return;
         postOrderHelp(root->left, traverse);
         postOrderHelp(root->right, traverse);
@@ -143,7 +168,7 @@ public:
         return traverse;
     };
     // Pre-order traversal
-    void preOrderHelp(Node<TypeKey, TypeValue>* root, vector<tuple<TypeKey, TypeValue>> &traverse){
+    void preOrderHelp(BstNode* root, vector<tuple<TypeKey, TypeValue>> &traverse){
         if (root == nullptr) return;
         tuple<TypeKey, TypeValue> data(root->key, root->value);
         traverse.push_back(data);
@@ -165,7 +190,7 @@ public:
         // reserve space to n pairs key and value
         traverse.reserve(n);
         Q.push(root);
-        Node<TypeKey, TypeValue> *aux;
+        BstNode *aux;
         while(!Q.empty()){
             aux = Q.front();
             traverse.push_back(tuple<TypeKey, TypeValue>(aux->key, aux->value));
@@ -180,7 +205,7 @@ public:
     /* END TRAVERSALS */
 
     /* BEGIN REMOVE NODE */
-    Node<TypeKey, TypeValue>* findSuccessor(Node<TypeKey, TypeValue>* node) {
+    BstNode* findSuccessor(BstNode* node) {
         if (node -> right == nullptr) return nullptr;
         else {
             Node<TypeKey,TypeValue>* curr = node->right;
@@ -190,7 +215,7 @@ public:
         }   
     };
     
-    Node<TypeKey, TypeValue>* findPredecessor(Node<TypeKey, TypeValue>* node) {
+    BstNode* findPredecessor(BstNode* node) {
         if (node -> left == nullptr) return nullptr;
         else {
             Node<TypeKey,TypeValue>* curr = node->left;
@@ -200,7 +225,7 @@ public:
         }   
     };
 
-    Node<TypeKey, TypeValue>* findParent(Node<TypeKey, TypeValue>* node, TypeKey key){
+    BstNode* findParent(BstNode* node, TypeKey key){
         if (node == nullptr) return nullptr;
         else if (node->left != nullptr and node->left->key == key) 
             return node;
@@ -214,8 +239,8 @@ public:
 
     bool remove(TypeKey key){
         if (root == nullptr) return false;
-        Node<TypeKey, TypeValue>* parent = findParent(root, key);
-        Node<TypeKey, TypeValue>* node;
+        BstNode* parent = findParent(root, key);
+        BstNode* node;
         if (parent == nullptr) 
             node = root;
         else    
@@ -234,7 +259,7 @@ public:
         }
         // case 2: node has one child
         else if (node->left == nullptr xor node->right == nullptr){
-            Node<TypeKey, TypeValue>* child = node->left != nullptr ? node->left : node->right;
+            BstNode* child = node->left != nullptr ? node->left : node->right;
             if (parent != nullptr and parent->left == node) 
                 parent->left = child;
             else if (parent != nullptr and parent->right == node)
@@ -247,9 +272,9 @@ public:
         }
         // case 3: node has two children
         else {
-            Node<TypeKey, TypeValue>* successor = findSuccessor(node);
-            Node<TypeKey, TypeValue>* successorParent = findParent(binarySearchTree::root, successor->key);
-            Node<TypeKey, TypeValue> temp = *node;
+            BstNode* successor = findSuccessor(node);
+            BstNode* successorParent = findParent(binarySearchTree::root, successor->key);
+            BstNode temp = *node;
             // exchange the values of the node and the successor
             node->key = successor->key;
             node->value = successor->value;
