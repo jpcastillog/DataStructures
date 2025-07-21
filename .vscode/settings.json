@@ -12,6 +12,8 @@
         "bitset": "cpp",
         "limits": "cpp",
         "optional": "cpp",
-        "ratio": "cpp"
+        "ratio": "cpp",
+        "initializer_list": "cpp",
+        "__split_buffer": "cpp"
     }
 }

@@ -6,6 +6,8 @@
 #include <vector>
 #include <queue>
 #include <sstream>
+#include <initializer_list>
+
 using namespace std;
 
 template<typename TypeKey, typename TypeValue>
@@ -43,10 +45,28 @@ public:
         // delete nodes using post-order traversal
         clear();
     };
+
+
     // Returns the number of node in the tree
     unsigned int size(){
         return BinarySearchTree::n;
     };
+
+    /**
+    * * Overloaded operator to print the Binary Search Tree in a readable format
+    * ! This operator print the tree in increasing order of keys
+    */
+    friend ostream& operator<<(ostream &os, const BinarySearchTree &bst) {
+        vector<tuple<TypeKey, TypeValue>> traverse = bst.inOrder();
+        os << "{";
+        for (size_t i = 0; i < traverse.size() - 1; ++i) {
+            os << get<0>(traverse[i]) << ": " << get<1>(traverse[i]) << ", ";
+        }
+        if (!traverse.empty())
+            os << get<0>(traverse.back()) << ": " << get<1>(traverse.back());
+        os << "}";
+        return os;
+    }
 
     class getInsertProxy {
     private:
@@ -91,6 +111,33 @@ public:
         if (root == nullptr) return;
         clearHelp(root);
     };
+
+    /**
+     * * Method return a vector of keys 
+     * ! The keys are in increasing order using a bfs in-order traversal
+     */
+    vector<TypeKey>& getKeys() const {
+        vector <TypeKey> keys;
+        vector<tuple<TypeKey, TypeValue>> inOrderT = this->inOrder();
+        keys.reserve(inOrderT.size());
+        for (const auto& node: inOrderT)
+            keys.push_back(get<0>(node));
+        return keys;
+    };
+
+    /**
+     * * Method return a vector of values
+     * ! The values are in increasing order using a bfs in-order traversal
+     */
+    vector<TypeValue>& getValues() const {
+        vector <TypeKey> values;
+        vector<tuple<TypeKey, TypeValue>> inOrderT = this->inOrder();
+        values.reserve(inOrderT.size());
+        for (const auto& node: inOrderT)
+            values.push_back(get<1>(node));
+        return values;
+    }
+
     /* END CLEAR TREE */
     /* BEGIN INSERT NODE */
     bool insertHelp(BstNode* root, TypeKey key, TypeValue value){
@@ -159,14 +206,14 @@ public:
     /* BEGIN TRAVERSALS */
     // DFS Traversals
     // In-order traversal
-    void inOrderHelp(BstNode* root, vector<tuple<TypeKey, TypeValue>> &traverse){
+    void inOrderHelp(BstNode* root, vector<tuple<TypeKey, TypeValue>> &traverse) const{
         if (root == nullptr) return;
         inOrderHelp(root->left, traverse);
         tuple<TypeKey, TypeValue> data(root->key, root->value);
         traverse.push_back(data);
         inOrderHelp(root->right, traverse);
     };
-    vector<tuple<TypeKey, TypeValue>> inOrder(){
+    vector<tuple<TypeKey, TypeValue>> inOrder() const {
         vector<tuple<TypeKey, TypeValue>> traverse;
         traverse.reserve(n);
         inOrderHelp(root, traverse);
@@ -174,28 +221,28 @@ public:
     };
 
     //Post-order traversal 
-    void postOrderHelp(BstNode* root, vector<tuple<TypeKey, TypeValue>> &traverse){
+    void postOrderHelp(BstNode* root, vector<tuple<TypeKey, TypeValue>> &traverse) const {
         if (root == nullptr) return;
         postOrderHelp(root->left, traverse);
         postOrderHelp(root->right, traverse);
         tuple<TypeKey, TypeValue> data(root->key, root->value);  
         traverse.push_back(data);  
     };
-    vector<tuple<TypeKey, TypeValue>> postOrder(){
+    vector<tuple<TypeKey, TypeValue>> postOrder() const {
         vector<tuple<TypeKey, TypeValue>> traverse;
         traverse.reserve(n);
         postOrderHelp(root, traverse);
         return traverse;
     };
     // Pre-order traversal
-    void preOrderHelp(BstNode* root, vector<tuple<TypeKey, TypeValue>> &traverse){
+    void preOrderHelp(BstNode* root, vector<tuple<TypeKey, TypeValue>> &traverse) const {
         if (root == nullptr) return;
         tuple<TypeKey, TypeValue> data(root->key, root->value);
         traverse.push_back(data);
         preOrderHelp(root->left, traverse);
         preOrderHelp(root->right, traverse);
     };
-    vector<tuple<TypeKey, TypeValue>> preOrder(){
+    vector<tuple<TypeKey, TypeValue>> preOrder() const {
         vector<tuple<TypeKey, TypeValue>> traverse;
         traverse.reserve(n);
         preOrderHelp(root, traverse);
@@ -203,7 +250,7 @@ public:
     };
 
     // Breadthfirst traversal (BFS)
-    vector<tuple<TypeKey, TypeValue>> breadthFirst(){
+    vector<tuple<TypeKey, TypeValue>> breadthFirst() const {
         // Queue to perfor level-wise traverse
         queue<Node<TypeKey,TypeValue>*> Q;
         vector<tuple<TypeKey, TypeValue>> traverse; // vector to return the traverse

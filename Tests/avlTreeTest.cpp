@@ -83,5 +83,8 @@ int main(int argc, char* argv[]){
     cout <<" Value of key [10]: " << avl[10] << endl;
     avl[10] = 20;
     cout <<" Value of key [10] after update: " << avl[10] << endl;
+
+    cout << "-------------Testing print operator -------------\n";
+    cout << avl << endl;
     return 0;
 }

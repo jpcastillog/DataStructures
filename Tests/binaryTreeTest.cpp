@@ -91,9 +91,11 @@ int main(int argc, char* argv[]) {
     printTraverse(traverse);
     traverse.clear();
 
+    cout << "---------- Test Cout of tree -----------\n";
+    cout << bst << endl;
+
     cout << "-------------Testing [] operator  -------------\n";
     cout <<" Value of key [1000]: " << bst[1000] << endl;
-    
     
     return 0;
 }
