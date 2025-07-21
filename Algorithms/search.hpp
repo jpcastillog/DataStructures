@@ -8,7 +8,7 @@
 */
 template<typename Type_it, typename Type_target>
 size_t binarySearch2Branches(const Type_it begin, const Type_it end, Type_target x){
-    size_t size = end - begin + 1;
+    size_t size = end - begin;
     size_t left = 0;
     size_t right = size - 1;
     while(left < right){
@@ -36,7 +36,7 @@ size_t binarySearch2Branches(const Type_it begin, const Type_it end, Type_target
  */
 template<typename Type_it, typename Type_target>
 size_t binarySearch3Branches(const Type_it begin, const Type_it end, Type_target x){
-    size_t size = end - begin + 1;
+    size_t size = end - begin;
     size_t left = 0;
     size_t right = size - 1;
     while(left <= right){
@@ -59,7 +59,7 @@ size_t binarySearch3Branches(const Type_it begin, const Type_it end, Type_target
  */
 template<typename Type_it, typename Type_target>
 size_t gallopingSearch(const Type_it begin, const Type_it end, Type_target x) {
-    size_t size = end - begin + 1;
+    size_t size = end - begin;
     if (size == 0) return size; // Empty array
 
     size_t index = 0;
