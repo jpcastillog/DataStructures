@@ -2,7 +2,7 @@
 #define AVL_TREE_H
 
 #include <vector>
-#include "binarySearchTree.hpp"
+#include "BinarySearchTree.hpp"
 
 using namespace std;
 
@@ -20,11 +20,11 @@ template<typename TypeKey, typename TypeValue>
 using AvlNode = avlNode<TypeKey, TypeValue>;
 
 template<typename TypeKey, typename TypeValue>
-class avlTree: public binarySearchTree<TypeKey, TypeValue> {
+class avlTree: public BinarySearchTree<TypeKey, TypeValue> {
     
     using BstNode = Node<TypeKey, TypeValue>;
     using AvlNode = avlNode<TypeKey, TypeValue>;
-    using bst = binarySearchTree<TypeKey, TypeValue>;
+    using bst = BinarySearchTree<TypeKey, TypeValue>;
     
     private:
         BstNode* root;
@@ -34,6 +34,35 @@ class avlTree: public binarySearchTree<TypeKey, TypeValue> {
     };
     ~avlTree() {
         clear();
+    };
+
+    class getInsertProxy {
+    private:
+        avlTree* avl;
+        TypeKey key;
+    public:
+        getInsertProxy(avlTree* avl, TypeKey key) : avl(avl), key(key) {};
+        void operator=(TypeValue value){
+            BstNode* node = this->avl->find(key);
+            if (node == nullptr)
+                avl->insert(key, value);
+            else 
+                node->value = value;
+        };
+
+        operator TypeValue() const{
+            BstNode* node = this->avl->find(key);
+            if (node == nullptr) {
+                stringstream ss; 
+                ss <<  "Key " << key << " not found";
+                throw std::runtime_error(ss.str());
+            }
+            return node->value;
+        };
+    };
+
+    getInsertProxy operator[](TypeKey key){
+        return getInsertProxy(this, key);
     };
 
     void clearHelp(BstNode* root){

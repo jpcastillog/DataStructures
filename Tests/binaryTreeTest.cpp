@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cassert>
 #include <vector>
-#include "../BinaryTree/binarySearchTree.hpp"
+#include "../BinaryTree/BinarySearchTree.hpp"
 
 using namespace std;
 
@@ -15,7 +15,7 @@ void printTraverse(vector<tuple<TypeKey, TypeValue>> traverse) {
 
 int main(int argc, char* argv[]) {
     // Test the binary search tree implementation
-    binarySearchTree<int, int> bst;
+    BinarySearchTree<int, int> bst;
     
     // Insert some values
     bst.insert(5, 10);
@@ -92,7 +92,7 @@ int main(int argc, char* argv[]) {
     traverse.clear();
 
     cout << "-------------Testing [] operator  -------------\n";
-    cout <<" Value of key [13]: " << bst[13] << endl;
+    cout <<" Value of key [1000]: " << bst[1000] << endl;
     
     
     return 0;

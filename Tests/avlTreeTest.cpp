@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../BinaryTree/avl.hpp"
+#include "../BinaryTree/AVLTree.hpp"
 
 template<typename TypeKey, typename TypeValue>
 void printTraverse(vector<tuple<TypeKey, TypeValue>> traverse) {
@@ -81,6 +81,7 @@ int main(int argc, char* argv[]){
 
     cout << "-------------Testing [] operator  -------------\n";
     cout <<" Value of key [10]: " << avl[10] << endl;
-
+    avl[10] = 20;
+    cout <<" Value of key [10] after update: " << avl[10] << endl;
     return 0;
 }

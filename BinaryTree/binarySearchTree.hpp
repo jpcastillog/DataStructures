@@ -24,37 +24,57 @@ class Node {
         }
 };
 
+
 template <typename TypeKey, typename TypeValue>
-class binarySearchTree {
+class BinarySearchTree {
 using BstNode = Node<TypeKey, TypeValue>;
 protected:
     unsigned int n;
     BstNode* root;
+    
 public:    
     // Constructor
-    binarySearchTree() {
-        binarySearchTree::n = 0;
-        binarySearchTree::root = nullptr;
+    BinarySearchTree() {
+        BinarySearchTree::n = 0;
+        BinarySearchTree::root = nullptr;
     };
     // Destructor
-    ~binarySearchTree() {
+    ~BinarySearchTree() {
         // delete nodes using post-order traversal
         clear();
     };
     // Returns the number of node in the tree
     unsigned int size(){
-        return binarySearchTree::n;
+        return BinarySearchTree::n;
     };
 
-    TypeValue operator[](TypeKey key){
-        BstNode* node = find(key);
-        if (node == nullptr){
-            stringstream ss; 
-            ss <<  "Key " << key << " not found";
-            throw std::runtime_error(ss.str());
-        }
-        else
+    class getInsertProxy {
+    private:
+        BinarySearchTree* bst;
+        TypeKey key;
+    public:
+        getInsertProxy(BinarySearchTree* bst, TypeKey key) : bst(bst), key(key) {};
+        void operator=(TypeValue value){
+            BstNode* node = this->bst->find(key);
+            if (node == nullptr)
+                bst->insert(key, value);
+            else 
+                node->value = value;
+        };
+
+        operator TypeValue() const{
+            BstNode* node = this->bst->find(key);
+            if (node == nullptr) {
+                stringstream ss; 
+                ss <<  "Key " << key << " not found";
+                throw std::runtime_error(ss.str());
+            }
             return node->value;
+        };
+    };
+
+    getInsertProxy operator[](TypeKey key){
+        return getInsertProxy(this, key);
     };
 
     /* BEGIN CLEAR TREE:
@@ -96,9 +116,9 @@ public:
             return true;
         }
         else {
-            bool inserted = insertHelp(binarySearchTree::root, key, value);
+            bool inserted = insertHelp(BinarySearchTree::root, key, value);
             if (inserted) 
-                binarySearchTree::n++;
+                BinarySearchTree::n++;
             return inserted;
         }
     };
@@ -273,7 +293,7 @@ public:
         // case 3: node has two children
         else {
             BstNode* successor = findSuccessor(node);
-            BstNode* successorParent = findParent(binarySearchTree::root, successor->key);
+            BstNode* successorParent = findParent(BinarySearchTree::root, successor->key);
             BstNode temp = *node;
             // exchange the values of the node and the successor
             node->key = successor->key;
