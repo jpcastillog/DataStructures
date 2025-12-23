@@ -38,10 +38,26 @@ void merge(T beginLeft, T endLeft,
 };
 
 template<typename T>
-void mergeSort(T begin, T end){
-    return;
+void mergeSortHelper(T begin, T end, T beginAux){
+    if (end - begin == 1)
+        return;
+    size_t mid = (end - begin) / 2;
+    mergeSortHelper(begin, &begin[mid], beginAux);
+    mergeSortHelper(&begin[mid+1], end, beginAux);
+    // Copy the elements to the auxiliary array,
+    for(size_t i = 0; i < (end - begin); i++) beginAux[i] = begin[i];
+    // In the end begin have the sorted elements.
+    merge(beginAux, &beginAux[mid],
+          &beginAux[mid+1], &beginAux[end],
+          begin);
 };
 
+template<typename T>
+void mergeSort(T begin, T end){
+    T beginAux = new T[end - begin];
+    mergeSortHelper(begin, end, beginAux);
+    delete[] beginAux;
+};
 
 template<typename T>
 void heapSort(T begin, T end){
